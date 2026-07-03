@@ -1,52 +1,59 @@
 # BRAIN.md
 
 ## What this app does
-A modern Pomodoro timer built for entrepreneurs. Track focus sessions, manage tasks, and optimize productivity.
+FlowFocus — an entrepreneur's modern Pomodoro timer with task management and daily stats tracking.
 
-## Current state
-✅ **Build passes cleanly.** The `_document` error was caused by an **empty `pages/` directory** — Next.js 14 App Router doesn't need it, and finding an empty `pages/` dir causes it to look for `_document` inside it. Fixed by removing the empty directory and clearing the stale `.next` cache.
-
-## Tech stack and why
-- **Next.js 14 (App Router)** — modern React framework with file-based routing
-- **TypeScript** — type safety
-- **Tailwind CSS** — utility-first styling
-- **lucide-react** — icon library
-- **clsx + tailwind-merge** — class management
+## Tech stack
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS (dark glassmorphism theme)
+- lucide-react icons
+- localStorage for persistence (tasks + daily stats)
 
 ## What has been built
-- .gitignore
-- CRITERIA.md
-- PROJECT_STATE.json
-- README.md
-- app/globals.css
-- app/layout.tsx
-- app/page.tsx
-- components/mode-switcher.tsx
-- components/notification-toast.tsx
-- components/stats-panel.tsx
-- components/task-list.tsx
-- components/timer-display.tsx
-- components/ui/button.tsx
-- components/ui/card.tsx
-- lib/use-pomodoro.ts
-- lib/utils.ts
-- next-env.d.ts
-- next.config.mjs
-- package.json
-- postcss.config.mjs
-- tailwind.config.ts
-- tsconfig.json
-
-## Latest verification
-- ✅ `npm run build` — compiles and generates all pages successfully
-- ✅ `npx tsc --noEmit` — zero TypeScript errors
+- ✅ Full Pomodoro timer (25 min focus / 5 min short break / 15 min long break)
+- ✅ Auto-cycling between focus and break sessions
+- ✅ Animated SVG progress ring (orange gradient glow)
+- ✅ Mode switcher (Focus / Short Break / Long Break)
+- ✅ Task list with add/toggle/delete + localStorage persistence
+- ✅ Daily stats panel (focus minutes, sessions, streak)
+- ✅ Notification toast on session transitions
+- ✅ Dark glassmorphism design with orange/white color scheme
+- ✅ Fixed empty `pages/` directory build error
+- ✅ Production build passes cleanly
+- ✅ GitHub repo populated: https://github.com/Goatkenziee/flowfocus-pomodoro
 
 ## What's still pending
-- Deploy to Vercel (requires Vercel integration to be reconnected)
+- ⏳ Vercel deploy — blocked by expired Vercel integration (401). User needs to reconnect at Settings → Integrations → Vercel, then I can deploy.
+- ⏳ Future enhancements: sound notifications, custom durations, PWA support, data export
 
-## User preferences detected
-- Keep changes focused, modern, and production-ready.
+## User preferences
+- Modern, dark, glassmorphism aesthetic
+- Orange accent (#f97316) on dark background
+- Clean, production-ready code
+
+## Project structure
+```
+flowfocus-pomodoro/
+├── app/
+│   ├── globals.css        # Tailwind + CSS variables (orange theme)
+│   ├── layout.tsx         # Root layout with Inter font
+│   └── page.tsx           # Main page (client component)
+├── components/
+│   ├── mode-switcher.tsx   # Focus / Short Break / Long Break tabs
+│   ├── notification-toast.tsx  # Slide-up notification on session change
+│   ├── stats-panel.tsx     # Daily stats badges (minutes, sessions, streak)
+│   ├── task-list.tsx       # Add/toggle/delete tasks with localStorage
+│   ├── timer-display.tsx   # Animated SVG ring + time + start/pause/reset
+│   └── ui/
+│       ├── button.tsx      # Reusable button (primary/ghost/outline)
+│       └── card.tsx        # Glass card wrapper
+├── lib/
+│   ├── use-pomodoro.ts     # Core hook: timer logic, auto-cycle, stats
+│   └── utils.ts            # cn() helper (clsx + tailwind-merge)
+└── package.json
+```
 
 ## Run notes
-- Last updated: 2026-07-03T15:06:00.000Z
-- Autonomous iteration: 0
+- Last updated: 2026-07-03T16:40:00.000Z
+- Run count: 2
