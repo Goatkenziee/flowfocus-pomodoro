@@ -35,8 +35,14 @@ npm run build
 npm start
 ```
 
-## Deploy
+## Live Preview
 
-Deploy to Vercel with one click:
+The app is running at: **https://3000-i5zwa98bvo0whg5jkdvrk.e2b.app**
+
+## GitHub
+
+Repository: **https://github.com/Goatkenziee/flowfocus-pomodoro**
+
+## Deploy to Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Goatkenziee/flowfocus-pomodoro)
