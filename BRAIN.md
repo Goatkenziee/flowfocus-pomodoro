@@ -1,48 +1,70 @@
-# BRAIN.md
+# BRAIN.md — FlowFocus Pomodoro Timer
 
 ## What this app does
-FlowFocus — A modern Pomodoro timer for entrepreneurs. Features 25/5/15 minute modes, circular progress ring, task management with pomodoro tracking, and a stats dashboard.
-
-## Current state
-✅ COMPLETE — All features built and verified.
+A premium Pomodoro timer for entrepreneurs — 25/5/15 focus sessions with task management, stats tracking, and a modern dark-themed UI.
 
 ## Tech stack
-- Next.js 14 (App Router) + TypeScript + Tailwind CSS + Lucide Icons
+- Next.js 14 (App Router) + TypeScript
+- Tailwind CSS 3.4 with custom CSS variables + dark mode
+- lucide-react icons, clsx + tailwind-merge for class management
+- Deployed via Vercel, code on GitHub
 
-## What has been built
-- `.gitignore`
-- `CRITERIA.md`
-- `PROJECT_STATE.json`
-- `README.md`
-- `app/globals.css` — Dark theme with CSS variables, gradient utilities, glow effects
-- `app/layout.tsx` — Root layout with Inter font, dark class
-- `app/page.tsx` — Main page with timer, tasks, stats grid layout
-- `app/pages/_document.tsx` — Next.js Document for production build
-- `components/mode-switcher.tsx` — Focus / Short Break / Long Break tabs
-- `components/notification-toast.tsx` — Slide-down notification with bell icon
-- `components/stats-panel.tsx` — 4-stat grid (sessions, focus min, total, tasks)
-- `components/task-list.tsx` — Add/complete/delete tasks, pomodoro count per task
-- `components/timer-display.tsx` — Circular SVG progress ring + controls
-- `components/ui/button.tsx` — Reusable button with variants
-- `components/ui/card.tsx` — Reusable card component
-- `lib/use-pomodoro.ts` — Core state hook (timer, tasks, sessions, audio)
-- `lib/utils.ts` — `cn()` utility (clsx + tailwind-merge)
+## What's been built
+### Timer (core)
+- 25-min focus, 5-min short break, 15-min long break (every 4th session)
+- Animated circular SVG progress ring with glow effect
+- Play / Pause / Reset controls
+- Auto-switch between focus and break modes
+- Audio notification (Web Audio API beep) on session completion
+- Toast notification overlay with message
 
-## Latest verification
-- ✅ Production build compiles successfully (exit 0)
-- ✅ Live preview: https://3000-i5zwa98bvo0whg5jkdvrk.e2b.app
-- ✅ GitHub: https://github.com/Goatkenziee/flowfocus-pomodoro
+### Task management
+- Add, toggle complete, delete tasks
+- Each task tracks pomodoro count
+- Tasks persist in memory during session
 
-## What's still pending
-- [x] Fix production build (added pages/_document.tsx)
-- [x] Push to GitHub
-- [ ] Vercel deploy — token expired, user needs to reconnect Vercel integration
+### Stats dashboard
+- Today's focus sessions completed count
+- Today's total focus minutes
+- Glass-card styled stat display
 
-## User preferences detected
-- Dark premium theme with purple gradient accents
-- Clean, modern, entrepreneur-focused design
-- Keep changes focused and production-ready
+### Design system
+- Dark background with ambient purple gradient glow blobs
+- Frosted glass panels (backdrop-blur + subtle borders)
+- Purple → accent gradient for primary elements
+- SVG ring with gradient stroke + glow filter
+- Staggered fade-up animations on load
+- Responsive grid: tasks (3 cols) + stats (2 cols) on desktop
 
-## Run notes
-- Last updated: 2026-07-03T03:15:00.000Z
-- Run 2: Fixed build by adding pages/_document.tsx. Build passes cleanly.
+## Files (22 total)
+- app/globals.css — CSS variables, dark theme, glass effects, animations
+- app/layout.tsx — Root layout with Inter font, dark class
+- app/page.tsx — Main page: timer, mode switcher, tasks, stats, footer
+- components/timer-display.tsx — Circular progress ring + time display
+- components/mode-switcher.tsx — Focus / Short Break / Long Break tabs
+- components/task-list.tsx — Task input + list with pomodoro counts
+- components/stats-panel.tsx — Today's session stats cards
+- components/notification-toast.tsx — Slide-in toast notification
+- components/ui/button.tsx — Reusable button with primary/ghost/outline variants
+- components/ui/card.tsx — Glass card wrapper
+- lib/use-pomodoro.ts — All state management: timer, tasks, sessions, notifications
+- lib/utils.ts — cn() helper with clsx + tailwind-merge
+- tailwind.config.ts — Custom colors, animations (fade-up, float), dark mode
+- next.config.mjs, package.json, tsconfig.json, postcss.config.mjs
+
+## Latest changes (this run — "finish make modern design")
+- Added ambient background glow blobs (3 blurred circles in primary/accent)
+- Added staggered fade-up entrance animations to header, timer, grid, footer
+- Added gradient logo icon in header with Timer icon
+- Added tagline subtitle
+- Added subtle footer
+- Fixed hook return aliases (sessionsCompleted, totalFocusMinutes, setMode, notificationMessage)
+- Fixed page prop names for ModeSwitcher (current → current, disabled prop)
+- Updated tailwind.config with fade-up and float keyframes
+- Added cn() utility with clsx + tailwind-merge
+- Pushed all updates to GitHub
+
+## Verification
+- `npm run build` compiles successfully (Next.js 14, 4 static pages)
+- Dev server preview: https://3000-iddgmkh81iwfjf7hkph8e.e2b.app
+- GitHub: https://github.com/Goatkenziee/flowfocus-pomodoro
