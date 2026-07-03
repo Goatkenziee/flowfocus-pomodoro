@@ -16,9 +16,9 @@ function formatTime(seconds: number): string {
 }
 
 const modeColors: Record<Mode, { stroke: string; glow: string }> = {
-  focus: { stroke: "url(#focusGradient)", glow: "rgba(168,85,247,0.4)" },
-  shortBreak: { stroke: "url(#breakGradient)", glow: "rgba(99,102,241,0.4)" },
-  longBreak: { stroke: "url(#breakGradient)", glow: "rgba(99,102,241,0.4)" },
+  focus: { stroke: "url(#focusGradient)", glow: "rgba(249,115,22,0.4)" },
+  shortBreak: { stroke: "url(#breakGradient)", glow: "rgba(251,146,60,0.4)" },
+  longBreak: { stroke: "url(#breakGradient)", glow: "rgba(251,146,60,0.4)" },
 };
 
 const modeLabels: Record<Mode, string> = {
@@ -44,12 +44,12 @@ export function TimerDisplay({ timeLeft, progress, isRunning, mode }: TimerDispl
       >
         <defs>
           <linearGradient id="focusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#a855f7" />
-            <stop offset="100%" stopColor="#6366f1" />
+            <stop offset="0%" stopColor="#f97316" />
+            <stop offset="100%" stopColor="#fb923c" />
           </linearGradient>
           <linearGradient id="breakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#818cf8" />
+            <stop offset="0%" stopColor="#fb923c" />
+            <stop offset="100%" stopColor="#fdba74" />
           </linearGradient>
         </defs>
 
