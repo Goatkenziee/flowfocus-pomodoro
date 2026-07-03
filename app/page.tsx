@@ -1,133 +1,143 @@
 "use client";
 
-import { usePomodoro, MODE_LABELS } from "@/lib/use-pomodoro";
+import { usePomodoro } from "@/lib/use-pomodoro";
 import { TimerDisplay } from "@/components/timer-display";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { TaskList } from "@/components/task-list";
 import { StatsPanel } from "@/components/stats-panel";
 import { NotificationToast } from "@/components/notification-toast";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, Sparkles } from "lucide-react";
+import { Play, Pause, RotateCcw, Timer, Sparkles } from "lucide-react";
 
-export default function Home() {
-  const pom = usePomodoro();
-
-  const notificationMessage =
-    pom.mode === "focus"
-      ? "🎉 Focus session complete!"
-      : "☕ Break's over — time to focus!";
-
-  // Count completed tasks
-  const tasksCompleted = pom.tasks.filter((t) => t.completed).length;
+export default function Page() {
+  const {
+    mode,
+    timeLeft,
+    isRunning,
+    progress,
+    tasks,
+    sessionsCompleted,
+    totalFocusMinutes,
+    showNotification,
+    notificationMessage,
+    start,
+    pause,
+    reset,
+    setMode,
+    addTask,
+    toggleTask,
+    deleteTask,
+  } = usePomodoro();
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      {/* Background effects */}
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      {/* ── Ambient background effects ── */}
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] h-[400px] w-[400px] rounded-full bg-accent/5 blur-[100px]" />
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-accent/5 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-primary/3 blur-[100px]" />
       </div>
 
-      <NotificationToast show={pom.showNotification} message={notificationMessage} />
+      <NotificationToast show={showNotification} message={notificationMessage} />
 
-      {/* Header */}
-      <header className="relative z-10 border-b border-border/40 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
-              <Sparkles className="h-4 w-4 text-white" />
+      <div className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+        {/* ── Header ── */}
+        <header className="mb-10 text-center animate-fade-up">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
+              <Timer className="h-4 w-4 text-white" />
             </div>
-            <h1 className="text-lg font-bold gradient-text">FlowFocus</h1>
+            <h1 className="text-lg font-bold tracking-tight">
+              Flow<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Focus</span>
+            </h1>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Entrepreneur&apos;s Pomodoro
+          <p className="text-xs text-muted-foreground/70 max-w-md mx-auto">
+            A premium Pomodoro timer for entrepreneurs who build empires one session at a time.
           </p>
-        </div>
-      </header>
+        </header>
 
-      <div className="relative z-10 mx-auto max-w-5xl px-6 py-8">
-        {/* Main grid */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
-          {/* Left column — Timer */}
-          <div className="flex flex-col items-center gap-8 pt-4">
-            <ModeSwitcher
-              current={pom.mode}
-              onSwitch={pom.switchMode}
-              disabled={pom.isRunning}
-            />
+        {/* ── Timer Section ── */}
+        <section className="mb-8 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+          <div className="flex flex-col items-center">
+            <ModeSwitcher current={mode} onSwitch={setMode} disabled={isRunning} />
 
-            <TimerDisplay
-              timeLeft={pom.timeLeft}
-              progress={pom.progress}
-              mode={pom.mode}
-              isRunning={pom.isRunning}
-            />
+            <div className="mt-6">
+              <TimerDisplay
+                timeLeft={timeLeft}
+                progress={progress}
+                isRunning={isRunning}
+                mode={mode}
+              />
+            </div>
 
             {/* Controls */}
-            <div className="flex items-center gap-4">
+            <div className="mt-8 flex items-center gap-3">
               <Button
-                variant="outline"
-                size="icon"
-                className="h-12 w-12 rounded-full"
-                onClick={pom.reset}
+                variant="primary"
+                size="lg"
+                onClick={isRunning ? pause : start}
+                className="gap-2 min-w-[140px]"
               >
-                <RotateCcw className="h-5 w-5" />
-              </Button>
-
-              <Button
-                variant={pom.isRunning ? "outline" : "default"}
-                size="icon"
-                className="h-16 w-16 rounded-full shadow-xl shadow-primary/20"
-                onClick={pom.isRunning ? pom.pause : pom.start}
-              >
-                {pom.isRunning ? (
-                  <Pause className="h-7 w-7" />
+                {isRunning ? (
+                  <>
+                    <Pause className="h-4 w-4" />
+                    Pause
+                  </>
                 ) : (
-                  <Play className="h-7 w-7 ml-0.5" />
+                  <>
+                    <Play className="h-4 w-4" />
+                    {timeLeft < 1500 ? "Resume" : "Start"}
+                  </>
                 )}
               </Button>
-
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
-                className="h-12 w-12 rounded-full"
-                onClick={() => pom.switchMode(pom.mode === "focus" ? "break" : "focus")}
+                onClick={reset}
+                className="text-muted-foreground hover:text-foreground"
               >
-                <span className="text-lg">⏭</span>
+                <RotateCcw className="h-4 w-4" />
               </Button>
             </div>
+          </div>
+        </section>
 
-            {/* Active task indicator */}
-            {pom.currentTaskId && (
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-1">CURRENT TASK</p>
-                <p className="text-sm font-medium text-primary">
-                  {pom.tasks.find((t) => t.id === pom.currentTaskId)?.text}
-                </p>
-              </div>
-            )}
+        {/* ── Bottom Grid: Tasks + Stats ── */}
+        <div
+          className="grid grid-cols-1 gap-6 lg:grid-cols-5 animate-fade-up"
+          style={{ animationDelay: "0.2s" }}
+        >
+          {/* Tasks — takes 3 cols on lg */}
+          <div className="lg:col-span-3">
+            <TaskList
+              tasks={tasks.map((t) => ({
+                id: t.id,
+                text: t.text,
+                done: t.completed,
+                pomodoros: t.pomodoros,
+              }))}
+              onAdd={addTask}
+              onToggle={toggleTask}
+              onDelete={deleteTask}
+            />
           </div>
 
-          {/* Right column — Tasks + Stats */}
-          <div className="flex flex-col gap-6">
+          {/* Stats — takes 2 cols on lg */}
+          <div className="lg:col-span-2">
             <StatsPanel
-              todayFocusSessions={pom.todayFocusSessions}
-              todayFocusMinutes={pom.todayFocusMinutes}
-              totalFocusSessions={pom.totalFocusSessions}
-              tasksCompleted={tasksCompleted}
-            />
-
-            <TaskList
-              tasks={pom.tasks}
-              currentTaskId={pom.currentTaskId}
-              onAdd={pom.addTask}
-              onToggle={pom.toggleTask}
-              onDelete={pom.deleteTask}
-              onSelect={pom.selectTask}
+              sessionsCompleted={sessionsCompleted}
+              totalFocusMinutes={totalFocusMinutes}
             />
           </div>
         </div>
+
+        {/* ── Footer ── */}
+        <footer className="mt-12 text-center animate-fade-up" style={{ animationDelay: "0.3s" }}>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground/30">
+            Made for the determined · FlowFocus
+          </p>
+        </footer>
       </div>
-    </main>
+    </div>
   );
 }

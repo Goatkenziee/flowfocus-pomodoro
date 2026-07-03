@@ -48,6 +48,7 @@ export function usePomodoro() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const focusCountRef = useRef(0);
@@ -55,7 +56,8 @@ export function usePomodoro() {
   const totalTime = TIMER_CONFIG[mode];
   const progress = 1 - timeLeft / totalTime;
 
-  const playNotification = useCallback(() => {
+  const playNotification = useCallback((message: string) => {
+    setNotificationMessage(message);
     setShowNotification(true);
     setTimeout(() => setShowNotification(false), 3000);
     try {
@@ -123,7 +125,11 @@ export function usePomodoro() {
       focusCountRef.current += 1;
     }
 
-    playNotification();
+    playNotification(
+      mode === "focus"
+        ? "Focus session complete! 🎉"
+        : "Break time is over — back to work! 💪",
+    );
 
     // Auto-switch after a brief delay so the user sees the notification
     setTimeout(() => {
@@ -214,18 +220,19 @@ export function usePomodoro() {
     tasks,
     currentTaskId,
     sessions,
-    todayFocusSessions: todayFocusSessions.length,
-    todayFocusMinutes,
-    totalFocusSessions,
     showNotification,
+    notificationMessage,
+    // Aliases the page expects
+    sessionsCompleted: todayFocusSessions.length,
+    totalFocusMinutes: todayFocusMinutes,
+    setMode: switchMode,
+    // Actions
     start,
     pause,
     reset,
-    switchMode,
     addTask,
     toggleTask,
     deleteTask,
     selectTask,
-    setCurrentTaskId,
   };
 }

@@ -15,13 +15,29 @@ const config: Config = {
         primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
         accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
       },
-      borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
-      fontFamily: { sans: ["var(--font-sans)", "system-ui", "sans-serif"] },
-      keyframes: {
-        "fade-up": { from: { opacity: "0", transform: "translateY(12px)" }, to: { opacity: "1", transform: "translateY(0)" } },
-        float: { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-10px)" } },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
-      animation: { "fade-up": "fade-up 0.6s ease-out both", float: "float 6s ease-in-out infinite" },
+      fontFamily: { sans: ["var(--font-sans)", "system-ui", "sans-serif"] },
+      transitionDuration: {
+        "400": "400ms",
+      },
+      keyframes: {
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        float: {
+          "0%,100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.6s ease-out both",
+        float: "float 6s ease-in-out infinite",
+      },
     },
   },
   plugins: [],
