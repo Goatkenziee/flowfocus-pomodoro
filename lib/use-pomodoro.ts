@@ -32,6 +32,14 @@ export interface Session {
   taskId?: string;
 }
 
+/** Generate a unique ID — works in all Next.js environments */
+function uid(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
 export function usePomodoro() {
   const [mode, setMode] = useState<TimerMode>("focus");
   const [timeLeft, setTimeLeft] = useState(TIMER_CONFIG.focus);
@@ -42,6 +50,7 @@ export function usePomodoro() {
   const [showNotification, setShowNotification] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const focusCountRef = useRef(0);
 
   const totalTime = TIMER_CONFIG[mode];
   const progress = 1 - timeLeft / totalTime;
@@ -61,14 +70,19 @@ export function usePomodoro() {
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.3);
-    } catch {}
+    } catch {
+      /* Audio not available */
+    }
   }, []);
 
   const switchMode = useCallback((newMode: TimerMode) => {
     setIsRunning(false);
     setMode(newMode);
     setTimeLeft(TIMER_CONFIG[newMode]);
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
   }, []);
 
   const start = useCallback(() => setIsRunning(true), []);
@@ -77,17 +91,23 @@ export function usePomodoro() {
   const reset = useCallback(() => {
     setIsRunning(false);
     setTimeLeft(TIMER_CONFIG[mode]);
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
   }, [mode]);
 
   const completeSession = useCallback(() => {
+    const effectiveDuration = TIMER_CONFIG[mode] - timeLeft;
+
     const session: Session = {
-      id: crypto.randomUUID(),
+      id: uid(),
       mode,
-      duration: TIMER_CONFIG[mode] - timeLeft,
+      duration: effectiveDuration,
       completedAt: Date.now(),
       taskId: currentTaskId ?? undefined,
     };
+
     setSessions((prev) => [session, ...prev]);
 
     if (currentTaskId) {
@@ -98,19 +118,27 @@ export function usePomodoro() {
       );
     }
 
+    // Track focus count via ref to avoid stale closure
+    if (mode === "focus") {
+      focusCountRef.current += 1;
+    }
+
     playNotification();
 
-    // Auto-switch mode
-    if (mode === "focus") {
-      const focusCount = sessions.filter((s) => s.mode === "focus").length + 1;
-      switchMode(focusCount % 4 === 0 ? "longBreak" : "break");
-    } else {
-      switchMode("focus");
-    }
-  }, [mode, timeLeft, currentTaskId, sessions, playNotification, switchMode]);
+    // Auto-switch after a brief delay so the user sees the notification
+    setTimeout(() => {
+      if (mode === "focus") {
+        switchMode(focusCountRef.current % 4 === 0 ? "longBreak" : "break");
+      } else {
+        switchMode("focus");
+      }
+    }, 500);
+  }, [mode, timeLeft, currentTaskId, playNotification, switchMode]);
 
+  // Timer tick
   useEffect(() => {
     if (!isRunning) return;
+
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -120,26 +148,32 @@ export function usePomodoro() {
         return prev - 1;
       });
     }, 1000);
+
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [isRunning]);
 
-  useEffect(() => {
-    if (timeLeft === 0 && isRunning === false) {
-      // Timer just hit 0
-      const wasRunning = sessions.length > 0 || true;
-      if (wasRunning) {
-        completeSession();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft]);
+  // When timer hits 0, complete the session
+  const justCompletedRef = useRef(false);
 
-  // Add task
+  useEffect(() => {
+    if (timeLeft === 0 && !isRunning && !justCompletedRef.current) {
+      justCompletedRef.current = true;
+      completeSession();
+    }
+    if (timeLeft > 0) {
+      justCompletedRef.current = false;
+    }
+  }, [timeLeft, isRunning, completeSession]);
+
+  // Task management
   const addTask = useCallback((text: string) => {
     const task: Task = {
-      id: crypto.randomUUID(),
+      id: uid(),
       text,
       completed: false,
       pomodoros: 0,
