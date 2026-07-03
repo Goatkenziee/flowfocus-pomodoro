@@ -31,13 +31,13 @@ export function StatsPanel({ sessionsCompleted, totalFocusMinutes }: StatsPanelP
     {
       icon: <Zap className="h-4 w-4" />,
       label: "Productivity Score",
-      value: sessionsCompleted > 0 ? `${Math.min(sessionsCompleted * 20, 100)}%` : "—",
+      value: sessionsCompleted > 0 ? `${Math.min(sessionsCompleted * 20, 100)}%` : "\u2014",
       accent: "from-primary/20 to-accent/20",
     },
     {
       icon: <TrendingUp className="h-4 w-4" />,
       label: "Streak",
-      value: sessionsCompleted > 0 ? "🔥 Active" : "Start a session",
+      value: sessionsCompleted > 0 ? "\uD83D\uDD25 Active" : "Start a session",
       accent: "from-accent/20 to-primary/20",
     },
   ];

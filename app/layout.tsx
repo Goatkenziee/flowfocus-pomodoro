@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FlowFocus — Entrepreneur's Pomodoro Timer",
+  title: "FlowFocus \u2014 Entrepreneur's Pomodoro Timer",
   description:
     "A modern Pomodoro timer built for entrepreneurs. Track focus sessions, manage tasks, and optimize your productivity.",
 };

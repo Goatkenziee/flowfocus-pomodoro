@@ -1,23 +1,22 @@
-# FlowFocus — Entrepreneur's Pomodoro Timer
+# FlowFocus \u2014 Entrepreneur's Pomodoro Timer
 
-A modern, beautifully designed Pomodoro timer built for entrepreneurs and creators who want to maximize their focus sessions.
+A modern, premium Pomodoro timer built for entrepreneurs. Track focus sessions, manage tasks, and optimize your productivity with a beautiful dark UI.
 
 ## Features
 
-- **25/5/15 Timer** — Classic Pomodoro with short and long breaks
-- **Circular Progress Ring** — Visual countdown with gradient colors per mode
-- **Task Management** — Add tasks, track pomodoros per task, mark complete
-- **Stats Dashboard** — Today's sessions, focus time, total sessions, tasks done
-- **Audio Notification** — Gentle tone when sessions end
-- **Dark Theme** — Premium dark UI with gradient accents and glow effects
-- **Responsive** — Works beautifully on desktop and mobile
+- \u23f1\ufe0f **Focus Timer** \u2014 25-minute focus sessions with SVG ring progress
+- \u2615 **Smart Breaks** \u2014 5-min short breaks, 15-min long breaks after 4 sessions
+- \u2705 **Task Management** \u2014 Add, complete, and track tasks with pomodoro counts
+- \ud83d\udcca **Live Stats** \u2014 Sessions completed, focus minutes, productivity score
+- \ud83c\udf1f **Premium Dark UI** \u2014 Glassmorphism, gradients, animations
+- \ud83d\udd14 **Audio/Toast Notifications** \u2014 Get alerted when sessions complete
 
 ## Tech Stack
 
-- **Next.js 14** (App Router)
-- **TypeScript**
-- **Tailwind CSS**
-- **Lucide Icons**
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Lucide Icons
 
 ## Getting Started
 
@@ -27,22 +26,3 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Build
-
-```bash
-npm run build
-npm start
-```
-
-## Live Preview
-
-The app is running at: **https://3000-i5zwa98bvo0whg5jkdvrk.e2b.app**
-
-## GitHub
-
-Repository: **https://github.com/Goatkenziee/flowfocus-pomodoro**
-
-## Deploy to Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Goatkenziee/flowfocus-pomodoro)

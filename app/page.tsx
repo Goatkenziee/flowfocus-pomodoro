@@ -7,108 +7,98 @@ import { TaskList } from "@/components/task-list";
 import { StatsPanel } from "@/components/stats-panel";
 import { NotificationToast } from "@/components/notification-toast";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, Timer } from "lucide-react";
+import { Play, Pause, RotateCcw, Sparkles } from "lucide-react";
 
-export default function Page() {
+export default function Home() {
   const {
     mode,
     timeLeft,
     isRunning,
     progress,
     tasks,
-    sessionsCompleted,
-    totalFocusMinutes,
     showNotification,
     notificationMessage,
+    sessionsCompleted,
+    totalFocusMinutes,
+    setMode,
     start,
     pause,
     reset,
-    setMode,
     addTask,
     toggleTask,
     deleteTask,
   } = usePomodoro();
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
-      {/* ── Ambient background effects ── */}
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-primary/5 blur-[120px]" />
-        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-accent/5 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-primary/3 blur-[100px]" />
+    <main className="relative min-h-screen overflow-hidden">
+      {/* Background gradient blobs */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary/10 blur-[120px]" />
+        <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-accent/10 blur-[120px]" />
       </div>
 
+      {/* Toast notification */}
       <NotificationToast show={showNotification} message={notificationMessage} />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
-        {/* ── Header ── */}
+      {/* Main content */}
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
         <header className="mb-10 text-center animate-fade-up">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
-              <Timer className="h-4 w-4 text-white" />
-            </div>
-            <h1 className="text-lg font-bold tracking-tight">
-              Flow<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Focus</span>
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h1 className="text-lg font-bold tracking-tight text-foreground">
+              FlowFocus
             </h1>
           </div>
-          <p className="text-xs text-muted-foreground/70 max-w-md mx-auto">
-            A premium Pomodoro timer for entrepreneurs who build empires one session at a time.
+          <p className="text-xs text-muted-foreground/50">
+            Entrepreneur's Pomodoro Timer
           </p>
         </header>
 
-        {/* ── Timer Section ── */}
-        <section className="mb-8 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-          <div className="flex flex-col items-center">
+        <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+          {/* Left: Timer section */}
+          <div className="flex flex-col items-center gap-8">
+            {/* Mode switcher */}
             <ModeSwitcher current={mode} onSwitch={setMode} disabled={isRunning} />
 
-            <div className="mt-6">
-              <TimerDisplay
-                timeLeft={timeLeft}
-                progress={progress}
-                isRunning={isRunning}
-                mode={mode}
-              />
-            </div>
+            {/* Timer */}
+            <TimerDisplay
+              timeLeft={timeLeft}
+              progress={progress}
+              isRunning={isRunning}
+              mode={mode}
+            />
 
             {/* Controls */}
-            <div className="mt-8 flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Button
                 variant="primary"
                 size="lg"
                 onClick={isRunning ? pause : start}
-                className="gap-2 min-w-[140px]"
+                className="min-w-[140px] gap-2"
               >
                 {isRunning ? (
                   <>
-                    <Pause className="h-4 w-4" />
-                    Pause
+                    <Pause className="h-4 w-4" /> Pause
                   </>
                 ) : (
                   <>
-                    <Play className="h-4 w-4" />
-                    {timeLeft < 1500 ? "Resume" : "Start"}
+                    <Play className="h-4 w-4" /> Start Focus
                   </>
                 )}
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={reset}
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <Button variant="ghost" size="icon" onClick={reset}>
                 <RotateCcw className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        </section>
 
-        {/* ── Bottom Grid: Tasks + Stats ── */}
-        <div
-          className="grid grid-cols-1 gap-6 lg:grid-cols-5 animate-fade-up"
-          style={{ animationDelay: "0.2s" }}
-        >
-          {/* Tasks — takes 3 cols on lg */}
-          <div className="lg:col-span-3">
+          {/* Right: Stats & Tasks */}
+          <div className="flex flex-col gap-4">
+            <StatsPanel
+              sessionsCompleted={sessionsCompleted}
+              totalFocusMinutes={totalFocusMinutes}
+            />
             <TaskList
               tasks={tasks.map((t) => ({
                 id: t.id,
@@ -121,23 +111,13 @@ export default function Page() {
               onDelete={deleteTask}
             />
           </div>
-
-          {/* Stats — takes 2 cols on lg */}
-          <div className="lg:col-span-2">
-            <StatsPanel
-              sessionsCompleted={sessionsCompleted}
-              totalFocusMinutes={totalFocusMinutes}
-            />
-          </div>
         </div>
 
-        {/* ── Footer ── */}
-        <footer className="mt-12 text-center animate-fade-up" style={{ animationDelay: "0.3s" }}>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground/30">
-            Made for the determined · FlowFocus
-          </p>
+        {/* Footer */}
+        <footer className="mt-12 text-center text-[10px] text-muted-foreground/30">
+          FlowFocus \u2014 Focus on what matters
         </footer>
       </div>
-    </div>
+    </main>
   );
 }

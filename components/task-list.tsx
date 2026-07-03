@@ -43,7 +43,7 @@ export function TaskList({ tasks, onAdd, onToggle, onDelete }: TaskListProps) {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Add a task…"
+          placeholder="Add a task\u2026"
           className="flex-1 rounded-xl border border-border bg-white/5 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
         />
         <Button type="submit" size="icon" disabled={!input.trim()}>

@@ -116,7 +116,7 @@ export function usePomodoro() {
 
     if (mode === "focus") {
       focusCountRef.current += 1;
-      showToast("✅ Focus session complete! Great work.");
+      showToast("\u2705 Focus session complete! Great work.");
 
       if (focusCountRef.current % LONG_BREAK_INTERVAL === 0) {
         switchMode("longBreak");
@@ -124,7 +124,7 @@ export function usePomodoro() {
         switchMode("shortBreak");
       }
     } else {
-      showToast("☕ Break's over — time to focus!");
+      showToast("\u2615 Break's over \u2014 time to focus!");
       switchMode("focus");
     }
   }, [mode, timeLeft, currentTaskId, playNotification, showToast, switchMode]);
@@ -217,11 +217,9 @@ export function usePomodoro() {
     sessions,
     showNotification,
     notificationMessage,
-    // Aliases the page expects
     sessionsCompleted: todayFocusSessions.length,
     totalFocusMinutes: todayFocusMinutes,
     setMode: switchMode,
-    // Actions
     start,
     pause,
     reset,
