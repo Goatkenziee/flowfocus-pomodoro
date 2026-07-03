@@ -1,13 +1,12 @@
-"use client";
-
 import { cn } from "@/lib/utils";
-import type { TimerMode } from "@/lib/use-pomodoro";
+
+type Mode = "focus" | "shortBreak" | "longBreak";
 
 interface TimerDisplayProps {
   timeLeft: number;
   progress: number;
-  mode: TimerMode;
   isRunning: boolean;
+  mode: Mode;
 }
 
 function formatTime(seconds: number): string {
@@ -16,90 +15,77 @@ function formatTime(seconds: number): string {
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-const MODE_COLORS: Record<TimerMode, string> = {
-  focus: "stroke-primary",
-  break: "stroke-emerald-400",
-  longBreak: "stroke-sky-400",
+const modeColors: Record<Mode, { stroke: string; glow: string }> = {
+  focus: { stroke: "url(#focusGradient)", glow: "rgba(168,85,247,0.4)" },
+  shortBreak: { stroke: "url(#breakGradient)", glow: "rgba(99,102,241,0.4)" },
+  longBreak: { stroke: "url(#breakGradient)", glow: "rgba(99,102,241,0.4)" },
 };
 
-const MODE_GRADIENTS: Record<TimerMode, string> = {
-  focus: "from-primary to-accent",
-  break: "from-emerald-400 to-teal-300",
-  longBreak: "from-sky-400 to-blue-300",
+const modeLabels: Record<Mode, string> = {
+  focus: "Focus Time",
+  shortBreak: "Short Break",
+  longBreak: "Long Break",
 };
 
-export function TimerDisplay({ timeLeft, progress, mode, isRunning }: TimerDisplayProps) {
-  const radius = 140;
+export function TimerDisplay({ timeLeft, progress, isRunning, mode }: TimerDisplayProps) {
+  const radius = 120;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - progress);
-  const colorClass = MODE_COLORS[mode];
-  const gradientClass = MODE_GRADIENTS[mode];
+  const strokeDashoffset = circumference * (1 - progress);
+  const colors = modeColors[mode];
 
   return (
     <div className="relative flex items-center justify-center">
-      {/* Glow behind ring */}
-      <div
-        className={cn(
-          "absolute rounded-full blur-3xl opacity-30 transition-all duration-700",
-          mode === "focus" ? "bg-primary/40" : mode === "break" ? "bg-emerald-400/30" : "bg-sky-400/30",
-          isRunning ? "scale-110" : "scale-100",
-        )}
-        style={{ width: 360, height: 360 }}
-      />
-
       {/* SVG Ring */}
       <svg
-        width={340}
-        height={340}
-        className="relative -rotate-90 drop-shadow-xl"
-        viewBox="0 0 340 340"
+        width={280}
+        height={280}
+        viewBox="0 0 280 280"
+        className={cn("glow-filter", isRunning && "animate-float")}
       >
-        {/* Background ring */}
+        <defs>
+          <linearGradient id="focusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#a855f7" />
+            <stop offset="100%" stopColor="#6366f1" />
+          </linearGradient>
+          <linearGradient id="breakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#818cf8" />
+          </linearGradient>
+        </defs>
+
+        {/* Track */}
         <circle
-          cx="170"
-          cy="170"
+          cx="140"
+          cy="140"
           r={radius}
           fill="none"
-          stroke="hsl(var(--muted))"
+          stroke="rgba(255,255,255,0.06)"
           strokeWidth="6"
-          className="opacity-30"
         />
-        {/* Progress ring */}
+
+        {/* Progress */}
         <circle
-          cx="170"
-          cy="170"
+          cx="140"
+          cy="140"
           r={radius}
           fill="none"
-          stroke="currentColor"
+          stroke={colors.stroke}
           strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className={cn(colorClass, "transition-all duration-1000 ease-linear")}
-          style={{
-            filter: "drop-shadow(0 0 12px currentColor)",
-          }}
+          strokeDashoffset={strokeDashoffset}
+          transform="rotate(-90 140 140)"
+          style={{ transition: "stroke-dashoffset 1s linear" }}
         />
       </svg>
 
-      {/* Center content */}
+      {/* Center Content */}
       <div className="absolute flex flex-col items-center">
-        <span
-          className={cn(
-            "text-7xl font-bold tabular-nums tracking-tight transition-colors",
-            isRunning && "text-foreground",
-          )}
-          style={{ fontFamily: "var(--font-sans)" }}
-        >
+        <span className="text-[56px] font-bold tracking-tight tabular-nums text-foreground">
           {formatTime(timeLeft)}
         </span>
-        <span
-          className={cn(
-            "mt-2 text-sm font-medium uppercase tracking-[0.2em] bg-gradient-to-r bg-clip-text text-transparent",
-            gradientClass,
-          )}
-        >
-          {mode === "focus" ? "Focus" : mode === "break" ? "Break" : "Long Break"}
+        <span className="mt-1 text-xs font-medium uppercase tracking-widest text-muted-foreground/60">
+          {modeLabels[mode]}
         </span>
       </div>
     </div>

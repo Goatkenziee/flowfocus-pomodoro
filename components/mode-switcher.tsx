@@ -1,37 +1,36 @@
-"use client";
-
 import { cn } from "@/lib/utils";
-import type { TimerMode } from "@/lib/use-pomodoro";
-import { Button } from "@/components/ui/button";
 
-const MODES: { key: TimerMode; label: string }[] = [
-  { key: "focus", label: "Focus" },
-  { key: "break", label: "Short Break" },
-  { key: "longBreak", label: "Long Break" },
-];
+type Mode = "focus" | "shortBreak" | "longBreak";
 
 interface ModeSwitcherProps {
-  current: TimerMode;
-  onSwitch: (mode: TimerMode) => void;
-  disabled: boolean;
+  current: Mode;
+  onSwitch: (mode: Mode) => void;
+  disabled?: boolean;
 }
+
+const modes: { value: Mode; label: string }[] = [
+  { value: "focus", label: "Focus" },
+  { value: "shortBreak", label: "Short Break" },
+  { value: "longBreak", label: "Long Break" },
+];
 
 export function ModeSwitcher({ current, onSwitch, disabled }: ModeSwitcherProps) {
   return (
-    <div className="flex items-center gap-1.5 rounded-xl bg-muted/50 p-1.5 backdrop-blur-sm">
-      {MODES.map(({ key, label }) => (
+    <div className="inline-flex items-center gap-1 rounded-2xl bg-white/5 p-1 border border-border/30">
+      {modes.map((m) => (
         <button
-          key={key}
-          onClick={() => onSwitch(key)}
+          key={m.value}
+          onClick={() => onSwitch(m.value)}
           disabled={disabled}
           className={cn(
-            "rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
-            current === key
-              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+            "relative rounded-xl px-4 py-1.5 text-xs font-medium transition-all duration-200",
+            current === m.value
+              ? "bg-gradient-to-r from-primary/20 to-accent/20 text-primary shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-white/5",
+            disabled && "opacity-50 cursor-not-allowed",
           )}
         >
-          {label}
+          {m.label}
         </button>
       ))}
     </div>

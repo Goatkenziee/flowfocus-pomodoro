@@ -7,7 +7,7 @@ import { TaskList } from "@/components/task-list";
 import { StatsPanel } from "@/components/stats-panel";
 import { NotificationToast } from "@/components/notification-toast";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, Timer, Sparkles } from "lucide-react";
+import { Play, Pause, RotateCcw, Timer } from "lucide-react";
 
 export default function Page() {
   const {

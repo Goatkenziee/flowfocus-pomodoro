@@ -1,118 +1,110 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
-export type TimerMode = "focus" | "break" | "longBreak";
+type Mode = "focus" | "shortBreak" | "longBreak";
 
-export const TIMER_CONFIG = {
-  focus: 25 * 60,
-  break: 5 * 60,
-  longBreak: 15 * 60,
-} as const;
-
-export const MODE_LABELS: Record<TimerMode, string> = {
-  focus: "Focus",
-  break: "Short Break",
-  longBreak: "Long Break",
-};
-
-export interface Task {
+interface Task {
   id: string;
   text: string;
   completed: boolean;
   pomodoros: number;
-  createdAt: number;
 }
 
-export interface Session {
+interface Session {
   id: string;
-  mode: TimerMode;
+  mode: Mode;
   duration: number;
-  completedAt: number;
-  taskId?: string;
+  completedAt: Date;
 }
 
-/** Generate a unique ID — works in all Next.js environments */
-function uid(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+const MODE_DURATIONS: Record<Mode, number> = {
+  focus: 25 * 60,
+  shortBreak: 5 * 60,
+  longBreak: 15 * 60,
+};
+
+const LONG_BREAK_INTERVAL = 4;
+
+let taskIdCounter = 0;
+let sessionIdCounter = 0;
+
+function generateTaskId(): string {
+  taskIdCounter++;
+  return `task_${Date.now()}_${taskIdCounter}`;
+}
+
+function generateSessionId(): string {
+  sessionIdCounter++;
+  return `session_${Date.now()}_${sessionIdCounter}`;
 }
 
 export function usePomodoro() {
-  const [mode, setMode] = useState<TimerMode>("focus");
-  const [timeLeft, setTimeLeft] = useState(TIMER_CONFIG.focus);
+  const [mode, setModeState] = useState<Mode>("focus");
+  const [timeLeft, setTimeLeft] = useState(MODE_DURATIONS["focus"]);
   const [isRunning, setIsRunning] = useState(false);
-  const [sessions, setSessions] = useState<Session[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
-
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const focusCountRef = useRef(0);
 
-  const totalTime = TIMER_CONFIG[mode];
-  const progress = 1 - timeLeft / totalTime;
+  const clearTimer = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
 
-  const playNotification = useCallback((message: string) => {
-    setNotificationMessage(message);
-    setShowNotification(true);
-    setTimeout(() => setShowNotification(false), 3000);
+  const playNotification = useCallback(() => {
     try {
-      const ctx = new AudioContext();
+      const ctx = new (window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+      osc.frequency.value = 880;
+      osc.type = "sine";
       gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
       osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.3);
+      osc.stop(ctx.currentTime + 0.5);
     } catch {
-      /* Audio not available */
+      // Audio not available
     }
   }, []);
 
-  const switchMode = useCallback((newMode: TimerMode) => {
-    setIsRunning(false);
-    setMode(newMode);
-    setTimeLeft(TIMER_CONFIG[newMode]);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+  const showToast = useCallback((message: string) => {
+    setNotificationMessage(message);
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 4000);
   }, []);
 
-  const start = useCallback(() => setIsRunning(true), []);
-  const pause = useCallback(() => setIsRunning(false), []);
-
-  const reset = useCallback(() => {
-    setIsRunning(false);
-    setTimeLeft(TIMER_CONFIG[mode]);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, [mode]);
+  const switchMode = useCallback(
+    (newMode: Mode) => {
+      clearTimer();
+      setIsRunning(false);
+      setModeState(newMode);
+      setTimeLeft(MODE_DURATIONS[newMode]);
+    },
+    [clearTimer],
+  );
 
   const completeSession = useCallback(() => {
-    const effectiveDuration = TIMER_CONFIG[mode] - timeLeft;
-
-    const session: Session = {
-      id: uid(),
+    const newSession: Session = {
+      id: generateSessionId(),
       mode,
-      duration: effectiveDuration,
-      completedAt: Date.now(),
-      taskId: currentTaskId ?? undefined,
+      duration: MODE_DURATIONS[mode] - timeLeft,
+      completedAt: new Date(),
     };
+    setSessions((prev) => [...prev, newSession]);
 
-    setSessions((prev) => [session, ...prev]);
-
-    if (currentTaskId) {
+    // Update current task pomodoro count
+    if (currentTaskId && mode === "focus") {
       setTasks((prev) =>
         prev.map((t) =>
           t.id === currentTaskId ? { ...t, pomodoros: t.pomodoros + 1 } : t,
@@ -120,72 +112,75 @@ export function usePomodoro() {
       );
     }
 
-    // Track focus count via ref to avoid stale closure
+    playNotification();
+
     if (mode === "focus") {
       focusCountRef.current += 1;
-    }
+      showToast("✅ Focus session complete! Great work.");
 
-    playNotification(
-      mode === "focus"
-        ? "Focus session complete! 🎉"
-        : "Break time is over — back to work! 💪",
-    );
-
-    // Auto-switch after a brief delay so the user sees the notification
-    setTimeout(() => {
-      if (mode === "focus") {
-        switchMode(focusCountRef.current % 4 === 0 ? "longBreak" : "break");
+      if (focusCountRef.current % LONG_BREAK_INTERVAL === 0) {
+        switchMode("longBreak");
       } else {
-        switchMode("focus");
+        switchMode("shortBreak");
       }
-    }, 500);
-  }, [mode, timeLeft, currentTaskId, playNotification, switchMode]);
+    } else {
+      showToast("☕ Break's over — time to focus!");
+      switchMode("focus");
+    }
+  }, [mode, timeLeft, currentTaskId, playNotification, showToast, switchMode]);
+
+  const start = useCallback(() => {
+    if (timeLeft <= 0) return;
+    setIsRunning(true);
+  }, [timeLeft]);
+
+  const pause = useCallback(() => {
+    setIsRunning(false);
+  }, []);
+
+  const reset = useCallback(() => {
+    clearTimer();
+    setIsRunning(false);
+    setTimeLeft(MODE_DURATIONS[mode]);
+  }, [clearTimer, mode]);
 
   // Timer tick
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isRunning) {
+      clearTimer();
+      return;
+    }
 
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
+          clearTimer();
           setIsRunning(false);
+          // Complete session in next tick to avoid state conflicts
+          setTimeout(() => completeSession(), 0);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [isRunning]);
+    return () => clearTimer();
+  }, [isRunning, clearTimer, completeSession]);
 
-  // When timer hits 0, complete the session
-  const justCompletedRef = useRef(false);
+  // Progress
+  const progress = 1 - timeLeft / MODE_DURATIONS[mode];
 
-  useEffect(() => {
-    if (timeLeft === 0 && !isRunning && !justCompletedRef.current) {
-      justCompletedRef.current = true;
-      completeSession();
-    }
-    if (timeLeft > 0) {
-      justCompletedRef.current = false;
-    }
-  }, [timeLeft, isRunning, completeSession]);
-
-  // Task management
+  // Task actions
   const addTask = useCallback((text: string) => {
-    const task: Task = {
-      id: uid(),
-      text,
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    const newTask: Task = {
+      id: generateTaskId(),
+      text: trimmed,
       completed: false,
       pomodoros: 0,
-      createdAt: Date.now(),
     };
-    setTasks((prev) => [task, ...prev]);
+    setTasks((prev) => [...prev, newTask]);
   }, []);
 
   const toggleTask = useCallback((id: string) => {
