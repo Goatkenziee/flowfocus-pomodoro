@@ -1,22 +1,21 @@
-# FlowFocus \u2014 Entrepreneur's Pomodoro Timer
+# FlowFocus — Entrepreneur's Pomodoro Timer
 
-A modern, premium Pomodoro timer built for entrepreneurs. Track focus sessions, manage tasks, and optimize your productivity with a beautiful dark UI.
+A modern Pomodoro timer built for entrepreneurs. Track focus sessions, manage tasks, and optimize your productivity.
 
 ## Features
 
-- \u23f1\ufe0f **Focus Timer** \u2014 25-minute focus sessions with SVG ring progress
-- \u2615 **Smart Breaks** \u2014 5-min short breaks, 15-min long breaks after 4 sessions
-- \u2705 **Task Management** \u2014 Add, complete, and track tasks with pomodoro counts
-- \ud83d\udcca **Live Stats** \u2014 Sessions completed, focus minutes, productivity score
-- \ud83c\udf1f **Premium Dark UI** \u2014 Glassmorphism, gradients, animations
-- \ud83d\udd14 **Audio/Toast Notifications** \u2014 Get alerted when sessions complete
+- **Pomodoro Timer** — 25 min focus / 5 min short break / 15 min long break
+- **Auto-cycling** — Automatically switches between focus and break sessions
+- **Task Management** — Add, complete, and delete tasks during your sessions
+- **Daily Stats** — Track total focus minutes, sessions completed, and current streak
+- **Modern UI** — Dark glassmorphism design with orange accent, smooth animations
 
 ## Tech Stack
 
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS
-- Lucide Icons
+- lucide-react icons
 
 ## Getting Started
 
@@ -26,3 +25,13 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Build
+
+```bash
+npm run build
+```
+
+## Deployed
+
+[GitHub Repository](https://github.com/Goatkenziee/flowfocus-pomodoro)

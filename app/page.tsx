@@ -1,123 +1,119 @@
 "use client";
-
-import { usePomodoro } from "@/lib/use-pomodoro";
+import { useState, useEffect } from "react";
 import { TimerDisplay } from "@/components/timer-display";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { TaskList } from "@/components/task-list";
 import { StatsPanel } from "@/components/stats-panel";
 import { NotificationToast } from "@/components/notification-toast";
-import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, Sparkles } from "lucide-react";
+import { usePomodoro } from "@/lib/use-pomodoro";
+
+type Mode = "focus" | "shortBreak" | "longBreak";
 
 export default function Home() {
   const {
-    mode,
     timeLeft,
+    totalDuration,
+    mode,
     isRunning,
-    progress,
-    tasks,
-    showNotification,
-    notificationMessage,
     sessionsCompleted,
-    totalFocusMinutes,
-    setMode,
+    dailyStats,
+    notification,
+    switchMode,
     start,
     pause,
     reset,
-    addTask,
-    toggleTask,
-    deleteTask,
+    dismissNotification,
   } = usePomodoro();
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="animate-pulse text-primary text-lg font-medium">
+          Loading FlowFocus...
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      {/* Background gradient blobs */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary/10 blur-[120px]" />
-        <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-accent/10 blur-[120px]" />
+    <main className="relative min-h-screen overflow-hidden bg-background">
+      {/* Ambient background glow */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
+        <div className="absolute -bottom-40 right-[-10%] h-[400px] w-[400px] rounded-full bg-accent/5 blur-[100px]" />
       </div>
 
-      {/* Toast notification */}
-      <NotificationToast show={showNotification} message={notificationMessage} />
+      {/* Header */}
+      <header className="relative z-10 flex items-center justify-between px-6 py-4">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <span className="text-sm font-semibold tracking-tight text-foreground">
+            FlowFocus
+          </span>
+        </div>
+        <StatsPanel stats={dailyStats} />
+      </header>
 
       {/* Main content */}
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
-        <header className="mb-10 text-center animate-fade-up">
-          <div className="mb-2 flex items-center justify-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-bold tracking-tight text-foreground">
-              FlowFocus
-            </h1>
-          </div>
-          <p className="text-xs text-muted-foreground/50">
-            Entrepreneur's Pomodoro Timer
-          </p>
-        </header>
+      <div className="relative z-10 mx-auto max-w-lg px-4 pt-8 sm:pt-12">
+        {/* Mode selector */}
+        <div className="mb-8 flex justify-center">
+          <ModeSwitcher current={mode} onSwitch={switchMode} disabled={isRunning} />
+        </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-          {/* Left: Timer section */}
-          <div className="flex flex-col items-center gap-8">
-            {/* Mode switcher */}
-            <ModeSwitcher current={mode} onSwitch={setMode} disabled={isRunning} />
+        {/* Timer */}
+        <div className="mb-8 flex justify-center">
+          <TimerDisplay
+            timeLeft={timeLeft}
+            totalDuration={totalDuration}
+            mode={mode}
+            isRunning={isRunning}
+            onStart={start}
+            onPause={pause}
+            onReset={reset}
+          />
+        </div>
 
-            {/* Timer */}
-            <TimerDisplay
-              timeLeft={timeLeft}
-              progress={progress}
-              isRunning={isRunning}
-              mode={mode}
-            />
-
-            {/* Controls */}
-            <div className="flex items-center gap-4">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={isRunning ? pause : start}
-                className="min-w-[140px] gap-2"
-              >
-                {isRunning ? (
-                  <>
-                    <Pause className="h-4 w-4" /> Pause
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-4 w-4" /> Start Focus
-                  </>
-                )}
-              </Button>
-              <Button variant="ghost" size="icon" onClick={reset}>
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Right: Stats & Tasks */}
-          <div className="flex flex-col gap-4">
-            <StatsPanel
-              sessionsCompleted={sessionsCompleted}
-              totalFocusMinutes={totalFocusMinutes}
-            />
-            <TaskList
-              tasks={tasks.map((t) => ({
-                id: t.id,
-                text: t.text,
-                done: t.completed,
-                pomodoros: t.pomodoros,
-              }))}
-              onAdd={addTask}
-              onToggle={toggleTask}
-              onDelete={deleteTask}
-            />
-          </div>
+        {/* Task list */}
+        <div className="mb-8">
+          <TaskList />
         </div>
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-[10px] text-muted-foreground/30">
-          FlowFocus \u2014 Focus on what matters
+        <footer className="pb-8 text-center">
+          <p className="text-xs text-muted-foreground">
+            Focus on what matters. One session at a time.
+          </p>
         </footer>
       </div>
+
+      {/* Notification toast */}
+      {notification && (
+        <NotificationToast
+          message={notification}
+          onDismiss={dismissNotification}
+        />
+      )}
     </main>
   );
 }

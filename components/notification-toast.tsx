@@ -1,51 +1,59 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { X, CheckCircle, Coffee } from "lucide-react";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Bell, X } from "lucide-react";
 
 interface NotificationToastProps {
-  show: boolean;
   message: string;
+  onDismiss: () => void;
+  duration?: number;
 }
 
-export function NotificationToast({ show, message }: NotificationToastProps) {
+export function NotificationToast({
+  message,
+  onDismiss,
+  duration = 5000,
+}: NotificationToastProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (show) {
-      setVisible(true);
-      const timer = setTimeout(() => setVisible(false), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [show]);
+    // Trigger enter animation
+    const enter = setTimeout(() => setVisible(true), 50);
+    // Auto dismiss
+    const timer = setTimeout(() => {
+      setVisible(false);
+      setTimeout(onDismiss, 300);
+    }, duration);
 
-  if (!visible) return null;
-
-  const isFocusComplete = message.includes("Focus");
+    return () => {
+      clearTimeout(enter);
+      clearTimeout(timer);
+    };
+  }, [message, duration, onDismiss]);
 
   return (
     <div
       className={cn(
-        "fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl border border-border/50 bg-black/80 backdrop-blur-xl px-5 py-3 shadow-2xl shadow-primary/10 transition-all duration-500",
-        visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4",
+        "fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transition-all duration-300",
+        visible
+          ? "translate-y-0 opacity-100"
+          : "translate-y-4 opacity-0"
       )}
     >
-      <div
-        className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-full",
-          isFocusComplete
-            ? "bg-primary/20 text-primary"
-            : "bg-accent/20 text-accent",
-        )}
-      >
-        {isFocusComplete ? (
-          <CheckCircle className="h-4 w-4" />
-        ) : (
-          <Coffee className="h-4 w-4" />
-        )}
+      <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 to-accent/10 px-5 py-3 shadow-xl shadow-primary/10 backdrop-blur-xl">
+        <Bell className="h-4 w-4 text-primary" />
+        <span className="text-sm font-medium text-foreground">{message}</span>
+        <button
+          onClick={() => {
+            setVisible(false);
+            setTimeout(onDismiss, 300);
+          }}
+          className="ml-2 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
-      <span className="text-sm font-medium text-foreground">{message}</span>
     </div>
   );
 }

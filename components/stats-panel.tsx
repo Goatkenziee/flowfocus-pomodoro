@@ -1,72 +1,56 @@
-import { Card } from "@/components/ui/card";
+"use client";
+
 import { cn } from "@/lib/utils";
-import { Timer, Clock, TrendingUp, Zap } from "lucide-react";
+import { Timer, Flame, Zap } from "lucide-react";
+
+interface DailyStats {
+  totalFocusMinutes: number;
+  sessionsCompleted: number;
+  currentStreak: number;
+}
 
 interface StatsPanelProps {
-  sessionsCompleted: number;
-  totalFocusMinutes: number;
+  stats: DailyStats;
 }
 
-interface StatCard {
-  icon: React.ReactNode;
-  label: string;
-  value: string | number;
-  accent: string;
-}
-
-export function StatsPanel({ sessionsCompleted, totalFocusMinutes }: StatsPanelProps) {
-  const stats: StatCard[] = [
-    {
-      icon: <Timer className="h-4 w-4" />,
-      label: "Sessions Today",
-      value: sessionsCompleted,
-      accent: "from-primary/20 to-accent/20",
-    },
-    {
-      icon: <Clock className="h-4 w-4" />,
-      label: "Focus Minutes",
-      value: totalFocusMinutes,
-      accent: "from-accent/20 to-primary/20",
-    },
-    {
-      icon: <Zap className="h-4 w-4" />,
-      label: "Productivity Score",
-      value: sessionsCompleted > 0 ? `${Math.min(sessionsCompleted * 20, 100)}%` : "\u2014",
-      accent: "from-primary/20 to-accent/20",
-    },
-    {
-      icon: <TrendingUp className="h-4 w-4" />,
-      label: "Streak",
-      value: sessionsCompleted > 0 ? "\uD83D\uDD25 Active" : "Start a session",
-      accent: "from-accent/20 to-primary/20",
-    },
-  ];
-
+export function StatsPanel({ stats }: StatsPanelProps) {
   return (
-    <Card className="p-5">
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground/70">
-        Today's Stats
-      </h2>
-      <div className="grid grid-cols-2 gap-3">
-        {stats.map((stat, i) => (
-          <div
-            key={i}
-            className={cn(
-              "flex flex-col gap-1.5 rounded-xl border border-border/30 bg-white/[0.02] p-3 transition-all duration-200 hover:bg-white/[0.04]",
-            )}
-          >
-            <div className={cn("flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br", stat.accent)}>
-              <div className="text-primary">{stat.icon}</div>
-            </div>
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              {stat.value}
-            </span>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground/50">
-              {stat.label}
-            </span>
-          </div>
-        ))}
-      </div>
-    </Card>
+    <div className="flex items-center gap-3">
+      <StatItem
+        icon={<Timer className="h-3.5 w-3.5" />}
+        value={`${stats.totalFocusMinutes}m`}
+        label="Today"
+      />
+      <StatItem
+        icon={<Zap className="h-3.5 w-3.5" />}
+        value={`${stats.sessionsCompleted}`}
+        label="Sessions"
+      />
+      <StatItem
+        icon={<Flame className="h-3.5 w-3.5" />}
+        value={`${stats.currentStreak}`}
+        label="Streak"
+      />
+    </div>
+  );
+}
+
+function StatItem({
+  icon,
+  value,
+  label,
+}: {
+  icon: React.ReactNode;
+  value: string;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-1.5 rounded-xl bg-white/5 px-3 py-1.5">
+      <span className="text-primary">{icon}</span>
+      <span className="text-xs font-semibold text-foreground tabular-nums">
+        {value}
+      </span>
+      <span className="text-[10px] text-muted-foreground">{label}</span>
+    </div>
   );
 }
